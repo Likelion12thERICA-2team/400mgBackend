@@ -1,6 +1,15 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 
-# Create your views here.
-def test(request) :
-    return HttpResponse("test")
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from .models import CustomUser
+from .serializers import CustomUserSerializer
+
+
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+
+    def get_permissions(self):
+        if (self.action == 'create'):
+            return []
+        return [IsAuthenticated()]
