@@ -36,7 +36,7 @@ def get_env_variable(var_name):
 # SECRET_KEY = get_env_variable('DJANGO_SECRET')
 
 # TODO: 실제 서비스에서는 DEBUG를 False로 변경할 것
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
