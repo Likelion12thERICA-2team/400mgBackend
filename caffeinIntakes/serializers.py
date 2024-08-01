@@ -1,7 +1,8 @@
 from rest_framework.serializers import ModelSerializer
 from .models import CaffeinIntake
 
-class CaffeinIntakeSerializer(ModelSerializer) :
-    class Meta :
+
+class CaffeinIntakeSerializer(ModelSerializer):
+    class Meta:
         model = CaffeinIntake
-        fields = "__all__"
+        fields = ('time', 'amount', 'caffeinType', 'user')
