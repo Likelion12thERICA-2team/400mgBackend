@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from .utils import process_caffeine_intake
 from datetime import datetime, timedelta
 
+
 # Create your views here.
 
 
