@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'post',
+    'follow',
     'caffeinIntakes',
     'rest_framework',
     'rest_framework_simplejwt',
