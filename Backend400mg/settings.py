@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'post',
+    'follow',
     'caffeinIntakes',
     'rest_framework',
     'rest_framework_simplejwt',

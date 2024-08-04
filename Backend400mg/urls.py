@@ -14,4 +14,5 @@ urlpatterns = [
     path('caffeinintakes/', include('caffeinIntakes.urls')),
     path('', include('users.urls')),
     path('', include('post.urls')),
+    path('', include('follow.urls')),
 ]
