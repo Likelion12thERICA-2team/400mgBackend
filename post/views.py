@@ -8,12 +8,29 @@ from rest_framework import status
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        # 모든 게시물 또는 로그인된 사용자가 작성한 게시물만 반환
+        user = self.request.user
+        if self.request.query_params.get('my_posts', 'false') == 'true':
+            return Post.objects.filter(user=user)
+        return Post.objects.all()
+
     def perform_create(self, serializer):
-        return serializer.save(user=self.request.user)
+        # 새 게시물을 생성할 때 현재 로그인한 사용자를 작성자로 설정
+        serializer.save(user=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        # 게시물을 삭제하기 전에 사용자 권한을 확인
+        post = self.get_object()
+        if post.user != request.user:
+            return Response({"detail": "You do not have permission to delete this post."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        return super().destroy(request, *args, **kwargs)
+
 
 
 class ReplyViewSet(viewsets.ModelViewSet):
@@ -29,6 +46,15 @@ class ReplyViewSet(viewsets.ModelViewSet):
         post_id = self.kwargs.get('post_id')
         post = Post.objects.get(id=post_id)
         return serializer.save(user=self.request.user, post=post)
+    
+    def destroy(self, request, *args, **kwargs):
+        reply = self.get_object()
+        if reply.user != request.user:
+            return Response({"detail": "You do not have permission to delete this reply."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        return super().destroy(request, *args, **kwargs)
+
 
 
 class ScrapViewSet(viewsets.ModelViewSet):
