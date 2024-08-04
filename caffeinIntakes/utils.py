@@ -22,6 +22,8 @@ def process_caffeine_intake(intake_list, total_time):
     result = [0] * num_interval
 
     for intake_time, amount in intake_list:
+        # 45분후로 계산
+        intake_time += 45
         intake_time = intake_time // interval_minute
         # for t1 in range(intake_time, intake_time + 5):
         #     time_since_intake = t1 * interval_minute - intake_time * interval_minute
