@@ -26,7 +26,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(max_length=128)
     joined_date = models.DateTimeField(auto_now_add=True)
     gender = models.CharField(max_length=10, choices=[
-                              ('M', 'Male'), ('F', 'Female')], blank=True)
+                              ('M', 'Male'), ('F', 'Female'), ('E', 'ETC')], blank=True)
     birth_date = models.DateField(null=True, blank=True)
     height = models.FloatField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
