@@ -19,7 +19,10 @@ class CaffeinIntakes(APIView):
         if not user.is_authenticated:
             return Response(status=HTTP_401_UNAUTHORIZED)
 
-        caffeinIntake = CaffeinIntake.objects.filter(user=user)
+        day_ago = datetime.now() - timedelta(hours=24)
+        # 현재 시간 기준으로 이전 24시간동안의 카페인 섭취량 가져옴
+        caffeinIntake = CaffeinIntake.objects.filter(
+            user=user, time__gte=day_ago)
         serializer = CaffeinIntakeSerializer(caffeinIntake, many=True)
         return Response(serializer.data)
 
@@ -70,3 +73,38 @@ class CaffeinePredictionAPIView(APIView):
         total_time = 12 * 60  # 12시간
         caffeine_levels = process_caffeine_intake(intake_list, total_time)
         return Response(caffeine_levels)
+
+
+# 월별로 카페인 섭취량을 가져오는 API
+# 하루의 총 카페인 섭취량 계산
+class MonthlyCaffeineIntakeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, year, month):
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response(status=HTTP_401_UNAUTHORIZED)
+
+        # 해당 월의 첫날과 마지막날을 구함
+        first_day = datetime(year, month, 1)
+        if month == 12:
+            last_day = datetime(year + 1, 1, 1)
+        else:
+            last_day = datetime(year, month + 1, 1)
+
+        # 해당 월의 카페인 섭취량을 가져옴
+        caffeinIntake = CaffeinIntake.objects.filter(
+            user=user, time__gte=first_day, time__lt=last_day).order_by('time')
+
+        daily_intake = {}
+        for intake in caffeinIntake:
+            day = intake.time.day
+            if day in daily_intake:
+                daily_intake[day] += intake.amount
+            else:
+                daily_intake[day] = intake.amount
+
+        # 일별 카페인 섭취량을 정렬하여 반환
+        sorted_intake = sorted(daily_intake.items())
+        return Response(dict(sorted_intake))
