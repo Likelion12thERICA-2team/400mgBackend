@@ -30,12 +30,12 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         serializer = CustomUserSerializer(user)
         return Response(serializer.data, status=HTTP_200_OK)
 
-    def create(self, request):
-        # Logic for creating a new user
-        serializer = CustomUserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        return Response(CustomUserSerializer(user).data, status=HTTP_201_CREATED)
+    # def create(self, request):
+    #     # Logic for creating a new user
+    #     serializer = CustomUserSerializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     user = serializer.save()
+    #     return Response(CustomUserSerializer(user).data, status=HTTP_201_CREATED)
 
     def get_permissions(self):
         if (self.action == 'create'):
@@ -52,7 +52,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             'user': serialzer.data,
             'refresh': str(refresh),
             'access': str(refresh.access_token),
-        })
+        }, status=HTTP_201_CREATED)
 
     def update(self, request, pk=None):
         user = self.get_queryset().first()
