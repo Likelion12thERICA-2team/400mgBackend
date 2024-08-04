@@ -4,10 +4,10 @@ from .views import PostViewSet, ReplyViewSet, ScrapViewSet, ScrapListView
 
 router = DefaultRouter()
 router.register(r'posts', PostViewSet, basename='post')
-router.register(r'posts/(?P<post_id>\d+)/replies', ReplyViewSet, basename='reply')
-
-post_router = DefaultRouter()
-post_router.register(r'scraps', ScrapViewSet)
+router.register(r'posts/(?P<post_id>\d+)/replies',
+                ReplyViewSet, basename='reply')
+router.register(r'posts/(?P<post_id>\d+)/scraps',
+                ScrapViewSet, basename='scrap')
 
 urlpatterns = [
     path('', include(router.urls)),
