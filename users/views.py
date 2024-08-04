@@ -9,7 +9,8 @@ from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_201_CREA
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-class CustomUserViewSet(viewsets.ViewSet):
+class CustomUserViewSet(viewsets.ModelViewSet):
+    serializer_class = CustomUserSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
