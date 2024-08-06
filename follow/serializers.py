@@ -3,6 +3,13 @@ from .models import Follow
 import datetime
 
 
+class FollowCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = ('user', 'follower')
+        read_only_fields = ('user', 'follower')
+
+
 class FollowSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField()
     last_caffeine_intake = serializers.SerializerMethodField()

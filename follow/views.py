@@ -1,10 +1,11 @@
 from rest_framework import generics, status, serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from django.db import IntegrityError
 from .models import Follow
 from users.models import CustomUser
-from .serializers import FollowSerializer
+from .serializers import FollowSerializer, FollowCreateSerializer
 
 
 class FollowUserView(generics.CreateAPIView):
@@ -38,7 +39,7 @@ class FollowUserView(generics.CreateAPIView):
 
 
 class FollowUserByUsernameView(generics.CreateAPIView):
-    serializer_class = FollowSerializer
+    serializer_class = FollowCreateSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
@@ -49,7 +50,7 @@ class FollowUserByUsernameView(generics.CreateAPIView):
             user_to_follow = CustomUser.objects.get(
                 username=username_to_follow)
         except CustomUser.DoesNotExist:
-            return Response({"detail": "사용자를 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+            raise NotFound("사용자를 찾을 수 없습니다.")
 
         if user == user_to_follow:
             raise serializers.ValidationError("자기 자신을 팔로우할 수 없습니다.")
@@ -59,12 +60,20 @@ class FollowUserByUsernameView(generics.CreateAPIView):
         except IntegrityError:
             raise serializers.ValidationError("이미 이 사용자를 팔로우하고 있습니다.")
 
+        self.follow = follow  # Store follow instance to use in create method
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
         response = {
-            "detail": f"{user_to_follow.username}님을 팔로우하기 시작했습니다.",
-            "follow": FollowSerializer(follow).data
+            "detail": f"{self.follow.user.username}님을 팔로우하기 시작했습니다.",
+            "follow": FollowCreateSerializer(self.follow).data
         }
 
-        return Response(response, status=status.HTTP_201_CREATED)
+        return Response(response, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class UnfollowUserView(generics.DestroyAPIView):
