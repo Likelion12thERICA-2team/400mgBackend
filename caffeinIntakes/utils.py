@@ -1,8 +1,12 @@
 import math
 
 
-def calculate_caffeine_absorption(amount, time_since_intake):
-    pass
+def caluculate_caffeine_absorption(amount, time):
+    slope = amount / 45
+    if time <= 45:
+        return slope * time
+    else:
+        return amount
 
 
 def calculate_caffeine_elimination(amount, time):
@@ -23,15 +27,20 @@ def process_caffeine_intake(intake_list, total_time):
 
     for intake_time, amount in intake_list:
         # 45분후로 계산
-        intake_time += 45
-        intake_time = intake_time // interval_minute
-        # for t1 in range(intake_time, intake_time + 5):
-        #     time_since_intake = t1 * interval_minute - intake_time * interval_minute
-        #     result[t1] += calculate_caffeine_absorption(
-        #         amount, time_since_intake)
+        # intake_time += 45
+        maxinum_time = intake_time + 45
+        interval_maxinum_time = maxinum_time // interval_minute
+        interval_intake_time = intake_time // interval_minute
+        # 증가
+        for t1 in range(interval_intake_time, interval_maxinum_time):
+            # 선형 흡수 가정
+            result[t1] += caluculate_caffeine_absorption(
+                amount, t1 * interval_minute - intake_time)
 
-        for t2 in range(intake_time, len(result)):
-            time_since_intake = t2 * interval_minute - intake_time * interval_minute
+            # 감소
+        for t2 in range(interval_maxinum_time, len(result)):
+            time_since_intake = t2 * interval_minute - \
+                interval_maxinum_time * interval_minute
             result[t2] += calculate_caffeine_elimination(
                 amount, time_since_intake)
 
