@@ -1,12 +1,13 @@
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser
 from .serializers import CustomUserSerializer
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_201_CREATED
+from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.core.files.uploadedfile import UploadedFile
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -65,3 +66,25 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, pk=None):
         return self.update(request, pk)
+
+    # 프로필 사진 업데이트
+    @action(detail=False, methods=['patch'], permission_classes=[IsAuthenticated])
+    def update_profile_picture(self, request):
+        user = self.get_queryset().first()
+        if not user:
+            return Response({'detail': 'Not found.'}, status=HTTP_404_NOT_FOUND)
+
+        if 'profile_picture' not in request.FILES:
+            return Response({'detail': 'No profile picture provided.'}, status=HTTP_400_BAD_REQUEST)
+
+        profile_picture = request.FILES['profile_picture']
+        
+        # Ensure the file is an uploaded file
+        if not isinstance(profile_picture, UploadedFile):
+            return Response({'detail': 'Invalid file.'}, status=HTTP_400_BAD_REQUEST)
+
+        # Update the profile picture
+        user.profile_picture = profile_picture
+        user.save()
+        serializer = CustomUserSerializer(user)
+        return Response(serializer.data, status=HTTP_200_OK)
